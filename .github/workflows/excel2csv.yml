@@ -1,0 +1,49 @@
+name: excel-to-csv
+on:
+  pull_request:
+    paths:
+      - "docs/**/*.xlsx"
+
+jobs:
+  convert-and-commit:
+    if: github.actor != 'github-actions[bot]' # ループ防止
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # diff コミット用
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install csvkit
+        run: pip install --no-cache-dir csvkit==1.*
+
+      - name: Convert xlsx to csv
+        run: |
+          mkdir -p diff
+          find docs -name '*.xlsx' | while read -r file; do
+            rel="${file#docs/}"
+            csv="diff/${rel%.xlsx}.csv"
+            mkdir -p "$(dirname "$csv")"
+            in2csv "$file" > "$csv"
+          done
+
+      - name: Commit and push CSV diff
+        env:
+          GIT_AUTHOR_NAME: excel-diff-bot
+          GIT_AUTHOR_EMAIL: bot@example.com
+          GIT_COMMITTER_NAME: excel-diff-bot
+          GIT_COMMITTER_EMAIL: bot@example.com
+        run: |
+          git add diff
+          if git diff --cached --quiet; then
+            echo "No CSV changes to commit"
+          else
+            git commit -m "chore: generate CSV for ${{ github.sha }}"
+            git push
+          fi
