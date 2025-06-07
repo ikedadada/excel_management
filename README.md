@@ -75,4 +75,4 @@ npx ts-node index.ts [変換元ディレクトリ] [出力先ディレクトリ]
 
 ## ライセンス
 
-ISC
+MIT
