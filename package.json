@@ -1,9 +1,17 @@
 {
   "name": "excel_management",
   "version": "1.0.0",
-  "description": "",
-  "license": "ISC",
-  "author": "",
+  "description": "ExcelファイルをCSVに変換するCLIツール",
+  "license": "MIT",
+  "author": "ikedadada <your-email@example.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ikedadada/excel_management.git"
+  },
+  "homepage": "https://github.com/ikedadada/excel_management#readme",
+  "bugs": {
+    "url": "https://github.com/ikedadada/excel_management/issues"
+  },
   "type": "commonjs",
   "main": "index.js",
   "directories": {

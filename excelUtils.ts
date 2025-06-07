@@ -5,6 +5,15 @@ import path from "path";
 // ファイル名に使えない文字を置換（Windows 互換）
 export const sanitize = (s: string) => s.replace(/[\/:*?"<>|]/g, "_");
 
+// RFC 4180準拠のCSVエンコード
+export function csvEncode(value: string): string {
+  if (/[",\n\r]/.test(value)) {
+    // " を "" にエスケープし、全体をダブルクォートで囲む
+    return '"' + value.replace(/"/g, '""') + '"';
+  }
+  return value;
+}
+
 export function toDisplayValue(
   cellValue: ExcelJS.CellValue
 ): string | number | boolean | null {
@@ -57,7 +66,8 @@ export async function convertBook(
   });
 
   for await (const worksheet of reader) {
-    const sheetName = sanitize((worksheet as any).name);
+    // @ts-expect-error: WorksheetReader型にnameが型定義されていないが実際は存在する
+    const sheetName = sanitize(worksheet.name);
     const csvPath = path.join(dst, bookName, `${sheetName}.csv`);
     fs.mkdirSync(path.dirname(csvPath), { recursive: true });
     const out = fs.createWriteStream(csvPath, { encoding: "utf8" });
@@ -69,7 +79,7 @@ export async function convertBook(
           const value = toDisplayValue(cell);
           if (value === null) return "";
           if (typeof value === "string") {
-            return `"${value.replace(/"/g, '""')}"`;
+            return csvEncode(value);
           }
           return String(value);
         })
