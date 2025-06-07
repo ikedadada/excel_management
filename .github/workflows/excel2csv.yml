@@ -28,7 +28,7 @@ jobs:
         run: npx tsc --project tsconfig.json
 
       - name: Convert Excel → CSV
-        run: node dist/scripts/convert-excel-to-csv.js docs diff
+        run: npm run diff
 
       - name: Commit and push CSV diff
         env:
